@@ -101,6 +101,7 @@ Book → Loan (One-to-Many)
 - **Book → Loan**: Một sách có thể được mượn nhiều lần, mỗi giao dịch mượn chỉ gồm một sách
 
 #### Implement schema trong SQL.
+```
 USE library_db;
 
 -- Table Author
@@ -169,5 +170,3 @@ CREATE TABLE Loan (
     FOREIGN KEY (member_id) REFERENCES Member(member_id) ON DELETE RESTRICT
 );
 ```
-
-[Thông tin liên hệ của bạn]
