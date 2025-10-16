@@ -84,6 +84,27 @@ class BookResource(Resource):
 
 @api.route('/books/search')
 class BookSearch(Resource):
+    @api.doc(params={
+        'q': {
+            'description': 'Title or author',
+            'in': 'query',
+            'type': 'string',
+            'default': ''
+        },
+        'page': {
+            'description': 'Page number',
+            'in': 'query',
+            'type': 'integer',
+            'default': 1
+        },
+        'per_page': {
+            'description': 'Number of items per page',
+            'in': 'query',
+            'type': 'integer',
+            'default': 10
+        }
+    })
+    
     @api.marshal_list_with(book_model, code=200, envelope="books")
     def get(self):
         ''' Search books by title or author with pagination '''
