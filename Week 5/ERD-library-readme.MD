@@ -1,67 +1,107 @@
--- Demo Data Modelling -
-Bước 1: Xác Định Thực thể và Thuộc tính
+# Hệ Thống Quản Lý Thư Viện (Library Management System)
 
-Book (Sách): Đại diện cho từng cuốn sách.
+## Mô Tả
 
-book_id (PK, INT): Mã sách (tự động tăng).
-title (VARCHAR(255)): Tiêu đề sách.
-publication_year (INT): Năm xuất bản.
-publisher (VARCHAR(100)): Nhà xuất bản.
-copies_available (INT): Số bản có sẵn.
-total_copies (INT): Tổng số bản.
+Demo cho data modelling cho hệ thống thư viện quản lý.
 
-Author (Tác Giả): Lưu thông tin tác giả.
+## Kiến Trúc Database
 
-author_id (PK, INT): Mã tác giả.
-name (VARCHAR(100)): Tên tác giả.
-bio (TEXT): Tiểu sử ngắn (tùy chọn).
+### Entities (Thực thể)
 
-Category (Thể Loại): Phân loại sách.
+#### 1. Book (Sách)
+Lưu trữ thông tin về sách trong thư viện.
 
-category_id (PK, INT): Mã thể loại.
-name (VARCHAR(50)): Tên thể loại (ví dụ: "Khoa học", "Văn học").
+| Cột | Kiểu dữ liệu | Mô tả |
+|-----|--------------|-------|
+| `book_id` | INT (PK) | Mã sách (tự động tăng) |
+| `title` | VARCHAR(255) | Tiêu đề sách |
+| `isbn` | VARCHAR(13) | Mã ISBN (duy nhất) |
+| `publication_year` | INT | Năm xuất bản |
+| `publisher` | VARCHAR(100) | Nhà xuất bản |
+| `copies_available` | INT | Số bản có sẵn để mượn |
+| `total_copies` | INT | Tổng số bản trong thư viện |
 
-Member (Độc Giả/Thành Viên): Người dùng thư viện.
+#### 2. Author (Tác Giả)
+Lưu trữ thông tin tác giả.
 
-member_id (PK, INT): Mã thành viên.
-name (VARCHAR(100)): Tên.
-email (VARCHAR(100)): Email.
-phone (VARCHAR(20)): Số điện thoại.
-address (VARCHAR(255)): Địa chỉ.
-join_date (DATE): Ngày đăng ký.
-membership_type (VARCHAR(50)): Loại thành viên (ví dụ: "Sinh viên", "Giáo viên").
+| Cột | Kiểu dữ liệu | Mô tả |
+|-----|--------------|-------|
+| `author_id` | INT (PK) | Mã tác giả (tự động tăng) |
+| `name` | VARCHAR(100) | Tên tác giả |
+| `bio` | TEXT | Tiểu sử ngắn (tùy chọn) |
 
-Loan (Mượn Sách): Theo dõi giao dịch mượn/trả.
+#### 3. Category (Thể Loại)
+Phân loại sách theo thể loại.
 
-loan_id (PK, INT): Mã mượn.
-book_id (FK, INT): Mã sách.
-member_id (FK, INT): Mã thành viên.
-loan_date (DATE): Ngày mượn.
-due_date (DATE): Ngày hạn trả.
-return_date (DATE): Ngày trả thực tế (NULL nếu chưa trả).
-fine_amount (DECIMAL(10,2)): Phạt quá hạn (tính động).
+| Cột | Kiểu dữ liệu | Mô tả |
+|-----|--------------|-------|
+| `category_id` | INT (PK) | Mã thể loại (tự động tăng) |
+| `name` | VARCHAR(50) | Tên thể loại (duy nhất) |
 
-Book_Author (Bảng trung gian cho many-to-many giữa Book và Author).
+#### 4. Member (Thành Viên)
+Lưu trữ thông tin độc giả/người dùng thư viện.
 
-book_id (FK, INT).
-author_id (FK, INT).
-PK: (book_id, author_id).
+| Cột | Kiểu dữ liệu | Mô tả |
+|-----|--------------|-------|
+| `member_id` | INT (PK) | Mã thành viên (tự động tăng) |
+| `name` | VARCHAR(100) | Tên thành viên |
+| `email` | VARCHAR(100) | Email (duy nhất) |
+| `phone` | VARCHAR(20) | Số điện thoại |
+| `address` | VARCHAR(255) | Địa chỉ |
+| `join_date` | DATE | Ngày đăng ký (mặc định: ngày hiện tại) |
+| `membership_type` | VARCHAR(50) | Loại thành viên (VD: "Sinh viên", "Giáo viên") |
 
-Book_Category (Bảng trung gian cho many-to-many giữa Book và Category).
+#### 5. Loan (Mượn Sách)
+Theo dõi các giao dịch mượn/trả sách.
 
-book_id (FK, INT).
-category_id (FK, INT).
-PK: (book_id, category_id).
+| Cột | Kiểu dữ liệu | Mô tả |
+|-----|--------------|-------|
+| `loan_id` | INT (PK) | Mã giao dịch mượn (tự động tăng) |
+| `book_id` | INT (FK) | Mã sách được mượn |
+| `member_id` | INT (FK) | Mã thành viên mượn sách |
+| `loan_date` | DATE | Ngày mượn (mặc định: ngày hiện tại) |
+| `due_date` | DATE | Ngày hạn trả |
+| `return_date` | DATE | Ngày trả thực tế (NULL nếu chưa trả) |
+| `fine_amount` | DECIMAL(10,2) | Số tiền phạt quá hạn |
 
-Bước 2: Xác Định Relationships
+#### 6. Book_Author (Bảng trung gian)
+Liên kết many-to-many giữa Book và Author.
 
-Book và Author: Many-to-Many (một sách có nhiều tác giả, một tác giả viết nhiều sách) → Sử dụng bảng Book_Author.
-Book và Category: Many-to-Many (một sách thuộc nhiều thể loại, một thể loại có nhiều sách) → Sử dụng bảng Book_Category.
-Member và Loan: One-to-Many (một thành viên mượn nhiều sách, một giao dịch mượn thuộc một thành viên).
-Book và Loan: One-to-Many (một sách được mượn nhiều lần, một giao dịch mượn chỉ một sách). Lưu ý: Nếu cho phép mượn nhiều sách cùng lúc, có thể cần bảng Loan_Item tương tự như OrderItem.
+| Cột | Kiểu dữ liệu | Mô tả |
+|-----|--------------|-------|
+| `book_id` | INT (FK) | Mã sách |
+| `author_id` | INT (FK) | Mã tác giả |
 
-Bước 4: Implement Schema trong SQL
+**Primary Key**: (`book_id`, `author_id`)
 
+#### 7. Book_Category (Bảng trung gian)
+Liên kết many-to-many giữa Book và Category.
+
+| Cột | Kiểu dữ liệu | Mô tả |
+|-----|--------------|-------|
+| `book_id` | INT (FK) | Mã sách |
+| `category_id` | INT (FK) | Mã thể loại |
+
+**Primary Key**: (`book_id`, `category_id`)
+
+## Relationships (Mối quan hệ - Liên kết)
+
+```
+Book ←→ Author (Many-to-Many via Book_Author)
+Book ←→ Category (Many-to-Many via Book_Category)
+Member → Loan (One-to-Many)
+Book → Loan (One-to-Many)
+```
+
+### Chi tiết Relationships
+
+- **Book ↔ Author**: Một sách có thể có nhiều tác giả, một tác giả có thể viết nhiều sách
+- **Book ↔ Category**: Một sách có thể thuộc nhiều thể loại, một thể loại chứa nhiều sách
+- **Member → Loan**: Một thành viên có thể mượn nhiều lần, mỗi giao dịch mượn thuộc về một thành viên
+- **Book → Loan**: Một sách có thể được mượn nhiều lần, mỗi giao dịch mượn chỉ gồm một sách
+
+#### Implement schema trong SQL.
+```
 USE library_db;
 
 -- Table Author
@@ -129,3 +169,4 @@ CREATE TABLE Loan (
     FOREIGN KEY (book_id) REFERENCES Book(book_id) ON DELETE RESTRICT,
     FOREIGN KEY (member_id) REFERENCES Member(member_id) ON DELETE RESTRICT
 );
+```
