@@ -139,3 +139,20 @@ def make_shell_context():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+'''
+
+Lấy tất cả sách với phân trang mặc định (page=1, per_page=10):
+curl http://localhost:5000/books/search
+
+Tìm kiếm sách theo từ khóa (ví dụ: tìm "Orwell"):
+curl http://localhost:5000/books/search?q=Orwell
+
+Phân trang với kích thước trang nhỏ (ví dụ: 3 sách/trang, trang 2):
+curl http://localhost:5000/books/search?page=2&per_page=3
+
+Kết hợp tìm kiếm và phân trang (ví dụ: tìm "Tolkien" với 2 sách/trang, trang 1):
+curl http://localhost:5000/books/search?q=Tolkien&per_page=2&page=1
+
+'''
