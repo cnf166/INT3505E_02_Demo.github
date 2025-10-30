@@ -1,0 +1,364 @@
+openapi: 3.0.0
+info:
+  description: API để quản lý thư viện sách - DEMO
+  title: Library Management API
+  version: 1.0.0
+servers:
+- description: Development server
+  url: http://localhost:5000
+paths:
+  /book/{id}:
+    delete:
+      description: Xóa sách theo ID
+      operationId: delete_book
+      parameters:
+      - description: Book ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/deleteBook_200_response"
+          description: Book deleted successfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Book not found
+      summary: Delete a book
+      tags:
+      - Books
+      x-openapi-router-controller: library_api.controllers.books_controller
+    get:
+      description: Lấy thông tin sách theo ID
+      operationId: get_book_by_id
+      parameters:
+      - description: Book ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/createBook_201_response"
+          description: Successful response
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Book not found
+      summary: Get a book by id
+      tags:
+      - Books
+      x-openapi-router-controller: library_api.controllers.books_controller
+    put:
+      description: Cập nhật thông tin sách
+      operationId: update_book
+      parameters:
+      - description: Book ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/createBook_201_response"
+          description: Book updated successfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Book not found
+      summary: Update a book
+      tags:
+      - Books
+      x-openapi-router-controller: library_api.controllers.books_controller
+  /books:
+    get:
+      description: Lấy danh sách tất cả các sách
+      operationId: get_books
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getBooks_200_response"
+          description: Successful response
+      summary: Get all books
+      tags:
+      - Books
+      x-openapi-router-controller: library_api.controllers.books_controller
+    post:
+      description: Tạo một cuốn sách mới
+      operationId: create_book
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/createBook_201_response"
+          description: Book created successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Bad request
+      summary: Create a new book
+      tags:
+      - Books
+      x-openapi-router-controller: library_api.controllers.books_controller
+  /books/search:
+    get:
+      description: Tìm kiếm sách theo tiêu đề hoặc tác giả với phân trang
+      operationId: search_books
+      parameters:
+      - description: Search query for title or author
+        explode: true
+        in: query
+        name: q
+        required: false
+        schema:
+          default: ""
+          type: string
+        style: form
+      - description: Page number
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - description: Number of items per page
+        explode: true
+        in: query
+        name: per_page
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookSearchResponse"
+          description: Successful response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Bad request
+      summary: Search books by title or author with pagination
+      tags:
+      - Books
+      x-openapi-router-controller: library_api.controllers.books_controller
+components:
+  schemas:
+    Book:
+      example:
+        author: George Orwell
+        id: 1
+        date_joined: 2024-01-15T10:30:00Z
+        title: "1984"
+      properties:
+        id:
+          description: Book ID
+          example: 1
+          title: id
+          type: integer
+        title:
+          description: Book title
+          example: "1984"
+          title: title
+          type: string
+        author:
+          description: Book author
+          example: George Orwell
+          title: author
+          type: string
+        date_joined:
+          description: Date when book was added
+          example: 2024-01-15T10:30:00Z
+          format: date-time
+          title: date_joined
+          type: string
+      title: Book
+      type: object
+    BookCreate:
+      example:
+        author: J.R.R. Tolkien
+        title: The Hobbit
+      properties:
+        title:
+          description: Book title
+          example: The Hobbit
+          maxLength: 80
+          minLength: 1
+          title: title
+          type: string
+        author:
+          description: Book author
+          example: J.R.R. Tolkien
+          maxLength: 40
+          minLength: 1
+          title: author
+          type: string
+      required:
+      - author
+      - title
+      title: BookCreate
+      type: object
+    BookUpdate:
+      example:
+        author: J.R.R. Tolkien
+        title: The Hobbit - Updated
+      properties:
+        title:
+          description: Book title
+          example: The Hobbit - Updated
+          maxLength: 80
+          minLength: 1
+          title: title
+          type: string
+        author:
+          description: Book author
+          example: J.R.R. Tolkien
+          maxLength: 40
+          minLength: 1
+          title: author
+          type: string
+      title: BookUpdate
+      type: object
+    BookSearchResponse:
+      example:
+        total: 25
+        books:
+        - author: George Orwell
+          id: 1
+          date_joined: 2024-01-15T10:30:00Z
+          title: "1984"
+        - author: George Orwell
+          id: 1
+          date_joined: 2024-01-15T10:30:00Z
+          title: "1984"
+        pages: 3
+        current_page: 1
+      properties:
+        books:
+          items:
+            $ref: "#/components/schemas/Book"
+          title: books
+          type: array
+        total:
+          description: Total number of books matching the search
+          example: 25
+          title: total
+          type: integer
+        pages:
+          description: Total number of pages
+          example: 3
+          title: pages
+          type: integer
+        current_page:
+          description: Current page number
+          example: 1
+          title: current_page
+          type: integer
+      title: BookSearchResponse
+      type: object
+    Error:
+      example:
+        message: Book not found
+      properties:
+        message:
+          description: Error message
+          example: Book not found
+          title: message
+          type: string
+      title: Error
+      type: object
+    getBooks_200_response:
+      example:
+        books:
+        - author: George Orwell
+          id: 1
+          date_joined: 2024-01-15T10:30:00Z
+          title: "1984"
+        - author: George Orwell
+          id: 1
+          date_joined: 2024-01-15T10:30:00Z
+          title: "1984"
+      properties:
+        books:
+          items:
+            $ref: "#/components/schemas/Book"
+          title: books
+          type: array
+      title: getBooks_200_response
+      type: object
+    createBook_201_response:
+      example:
+        book:
+          author: George Orwell
+          id: 1
+          date_joined: 2024-01-15T10:30:00Z
+          title: "1984"
+      properties:
+        book:
+          $ref: "#/components/schemas/Book"
+      title: createBook_201_response
+      type: object
+    deleteBook_200_response:
+      example:
+        book_deleted:
+          author: George Orwell
+          id: 1
+          date_joined: 2024-01-15T10:30:00Z
+          title: "1984"
+      properties:
+        book_deleted:
+          $ref: "#/components/schemas/Book"
+      title: deleteBook_200_response
+      type: object
