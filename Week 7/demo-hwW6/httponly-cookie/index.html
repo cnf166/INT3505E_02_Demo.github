@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JWT - HttpOnly Cookie</title>
+</head>
+<body>
+  <h2>Login (HttpOnly Cookie)</h2>
+  <input type="text" id="username" placeholder="username" value="user"><br><br>
+  <input type="password" id="password" placeholder="password" value="pass"><br><br>
+  <button onclick="login()">Login</button>
+  <button onclick="callProtected()">Call Protected</button>
+  <button onclick="logout()">Logout</button>
+  <pre id="result"></pre>
+
+  <script>
+    const API = 'http://localhost:5003';
+
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      fetch(`${API}/login`, {
+        method: 'POST',
+        credentials: 'include',  // Quan trọng: gửi cookie
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('result').textContent = JSON.stringify(data);
+      });
+    }
+
+    function callProtected() {
+      fetch(`${API}/protected`, {
+        credentials: 'include'  // Gửi cookie tự động
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('result').textContent = JSON.stringify(data);
+      })
+      .catch(err => {
+        document.getElementById('result').textContent = 'Error: ' + err;
+      });
+    }
+
+    function logout() {
+      fetch(`${API}/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+      .then(() => {
+        document.getElementById('result').textContent = 'Logged out. Cookie cleared.';
+      });
+    }
+  </script>
+</body>
+</html>
