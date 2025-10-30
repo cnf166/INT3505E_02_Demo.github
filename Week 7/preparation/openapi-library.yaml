@@ -4,7 +4,7 @@ info:
   description: API để quản lý thư viện sách - DEMO
   version: 1.0.0
 servers:
-  - url: http://localhost:5000
+  - url: http://localhost:500
     description: Development server
 
 paths:
