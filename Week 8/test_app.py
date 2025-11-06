@@ -8,6 +8,7 @@ from app import app, db, Book
 class LibraryAPITestCase(unittest.TestCase):
 
     def setUp(self):
+        # Create a temporary database
         self.db_fd, self.db_path = tempfile.mkstemp()
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.db_path
         app.config['TESTING'] = True
@@ -16,6 +17,8 @@ class LibraryAPITestCase(unittest.TestCase):
         self.app = app
         self.client = app.test_client()
         
+
+        # Create database tables and seed test data
         with app.app_context():
             db.create_all()
             self._seed_test_data()
@@ -136,6 +139,7 @@ class LibraryAPITestCase(unittest.TestCase):
         self.assertEqual(data['total'], 2)
 
     def test_full_crud_workflow(self):
+        # Create a new book
         new_book = {'title': 'CRUD Test', 'author': 'CRUD Author'}
         
         create_response = self.client.post('/books', data=json.dumps(new_book), content_type='application/json')
