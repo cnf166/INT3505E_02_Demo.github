@@ -1,0 +1,7 @@
+Flask==3.0.3
+gunicorn==23.0.0
+prometheus-flask-exporter==0.18.7
+flask-limiter[redis]==3.8.0
+pybreaker==1.1.0
+redis==5.0.8
+python-dotenv==1.0.1
