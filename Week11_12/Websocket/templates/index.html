@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RealTime Book Board</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f9f9fb; }
+    h1 { color: #6366f1; }
+    .book { padding: 12px; margin: 8px 0; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .delete { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+    input { padding: 10px; margin-right: 8px; border: 1px solid #ddd; border-radius: 6px; flex: 1; }
+    button { padding: 10px 16px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .form { display: flex; gap: 8px; margin-bottom: 30px; }
+  </style>
+</head>
+<body>
+  <h1>RealTime Book Board</h1>
+  <p>Open this page in multiple tabs/windows → magic happens instantly!</p>
+
+  <div class="form">
+    <input type="text" id="title" placeholder="Book title" />
+    <input type="text" id="author" placeholder="Author" />
+    <button onclick="addBook()">Add Book</button>
+  </div>
+
+  <div id="books"></div>
+
+  <script>
+    const ws = new WebSocket("ws://" + location.host + "/ws");
+    const booksDiv = document.getElementById("books");
+
+    function render(books) {
+      booksDiv.innerHTML = books.map(b => `
+        <div class="book">
+          <div><strong>${b.title}</strong> by ${b.author}</div>
+          <button class="delete" onclick="deleteBook(${b.id})">×</button>
+        </div>
+      `).join("");
+    }
+
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      if (msg.type === "init") render(msg.books);
+      if (msg.type === "added") {
+        render([...document.querySelectorAll(".book")].map(el => ({
+          id: el.querySelector(".delete").onclick.toString().match(/\d+/)[0],
+          title: el.querySelector("strong").textContent,
+          author: el.textContent.match(/by (.+)$/)[1]
+        }), msg.book));
+      }
+      if (msg.type === "deleted") {
+        render([...document.querySelectorAll(".book")].filter(el => 
+          !el.querySelector(".delete").onclick.toString().includes(msg.id)
+        ).map(el => ({
+          id: el.querySelector(".delete").onclick.toString().match(/\d+/)[0],
+          title: el.querySelector("strong").textContent,
+          author: el.textContent.match(/by (.+)$/)[1]
+        })));
+      }
+    };
+
+    function addBook() {
+      const title = document.getElementById("title").value.trim();
+      const author = document.getElementById("author").value.trim();
+      if (title && author) {
+        ws.send(JSON.stringify({action: "add", title, author}));
+        document.getElementById("title").value = "";
+        document.getElementById("author").value = "";
+      }
+    }
+
+    function deleteBook(id) {
+      ws.send(JSON.stringify({action: "delete", id}));
+    }
+  </script>
+</body>
+</html>
